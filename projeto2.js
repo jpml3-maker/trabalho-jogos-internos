@@ -37,7 +37,7 @@ async function query(sql, params = []) {
   return rows;
 }
 
-// ============ DROPDOWNS (para os formulários) ============
+
 app.get('/api/turmas', async (req, res) => {
   try {
     const rows = await query('SELECT id_turma, nome, serie, turno FROM TURMA ORDER BY nome');
@@ -59,7 +59,7 @@ app.get('/api/usuarios', async (req, res) => {
   } catch (err) { res.status(500).json({ erro: err.message }); }
 });
 
-// ============ ATLETA (Cadastro 1) ============
+
 app.get('/api/atletas', async (req, res) => {
   try {
     const rows = await query(`
@@ -103,7 +103,7 @@ app.delete('/excluirAtleta/:id', async (req, res) => {
   } catch (err) { res.status(500).json({ erro: err.message }); }
 });
 
-// ============ EQUIPE (Cadastro 2) ============
+
 app.get('/api/equipes', async (req, res) => {
   try {
     const rows = await query(`
@@ -153,7 +153,7 @@ app.delete('/excluirEquipe/:id', async (req, res) => {
   } catch (err) { res.status(500).json({ erro: err.message }); }
 });
 
-// ============ PARTIDA (Cadastro 3 + placar) ============
+
 app.get('/api/partidas', async (req, res) => {
   try {
     const rows = await query(`
@@ -225,7 +225,8 @@ app.delete('/excluirPartida/:id', async (req, res) => {
   } catch (err) { res.status(500).json({ erro: err.message }); }
 });
 
-// ============ CLASSIFICAÇÃO (GROUP BY) ============
+
+
 app.get('/api/classificacao', async (req, res) => {
   try {
     const rows = await query(`
