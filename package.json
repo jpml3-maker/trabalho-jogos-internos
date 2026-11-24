@@ -1,0 +1,24 @@
+{
+  "name": "arena-ifal-jogos-internos",
+  "version": "1.0.0",
+  "description": "Sistema web para organizar os jogos internos de uma escola",
+  "private": true,
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "api": "node projeto2.js",
+    "db:reset": "node scripts/resetarBanco.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "mysql2": "^3.9.7"
+  }
+}

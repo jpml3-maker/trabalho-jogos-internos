@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jogos Internos - IFAL</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; color: #222; line-height: 1.6; }
+  a { text-decoration: none; color: inherit; }
+
+  /* Header */
+  header { background: #1a3a5c; color: #fff; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+  header h1 { font-size: 1.5rem; }
+  header .status { font-size: 0.85rem; opacity: 0.9; }
+
+  /* Navigation tabs */
+  nav { background: #fff; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 100; }
+  nav ul { display: flex; list-style: none; max-width: 1200px; margin: 0 auto; padding: 0; }
+  nav li { flex: 1; }
+  nav a { display: block; padding: 1rem; text-align: center; font-weight: 600; color: #555; border-bottom: 3px solid transparent; transition: all 0.2s; }
+  nav a:hover { background: #f0f4f8; color: #1a3a5c; }
+  nav a.active { color: #1a3a5c; border-bottom-color: #1a3a5c; background: #eef2f7; }
+
+  /* Layout */
+  .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem 1rem; }
+  section { display: none; margin-top: 1rem; }
+  section.active { display: block; }
+
+  /* Cards */
+  .card { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 1.5rem; margin-bottom: 1.5rem; }
+  .card h2 { margin-bottom: 1rem; color: #1a3a5c; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
+
+  /* Forms */
+  form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: end; }
+  form .full { grid-column: 1 / -1; }
+  label { display: block; font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 0.35rem; }
+  input, select { width: 100%; padding: 0.55rem; border: 1px solid #ccc; border-radius: 6px; font-size: 0.95rem; }
+  input:focus, select:focus { outline: none; border-color: #1a3a5c; }
+  button.btn-submit { grid-column: 1 / -1; background: #1a3a5c; color: #fff; border: none; padding: 0.75rem; border-radius: 6px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: background 0.2s; }
+  button.btn-submit:hover { background: #142e4a; }
+  button.btn-submit:disabled { opacity: 0.7; cursor: not-allowed; }
+
+  .msg { margin-top: 0.75rem; padding: 0.75rem; border-radius: 6px; font-size: 0.9rem; display: none; }
+  .msg.ok { background: #e7f4ea; color: #1e7a34; border: 1px solid #a8d9a8; display: block; }
+  .msg.err { background: #fdecea; color: #c0392b; border: 1px solid #f5a7a3; display: block; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem; }
+  th, td { padding: 0.75rem; border: 1px solid #ddd; text-align: left; }
+  th { background: #f0f4f8; font-weight: 600; color: #1a3a5c; }
+  tr:nth-child(even) { background: #fafafa; }
+  tr:hover { background: #f0f4f8; }
+
+  /* Buttons in table */
+  .btn-del { background: #c0392b; color: #fff; border: none; padding: 0.35rem 0.7rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+  .btn-del:hover { background: #a93226; }
+  .btn-placar { background: #1a3a5c; color: #fff; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+  .btn-placar:hover { background: #142e4a; }
+  .btn-refresh { background: #27ae60; color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-size: 0.9rem; margin-bottom: 1rem; }
+  .btn-refresh:hover { background: #219a52; }
+
+  .placar-row { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem; }
+  .placar-row input { width: 70px; }
+
+  .empty { text-align: center; color: #777; padding: 2rem; }
+
+  /* Classification */
+  .tabela-classificacao th:nth-child(-n+2), .tabela-classificacao td:nth-child(-n+2) { text-align: left; }
+  .tabela-classificacao th:nth-child(n+3), .tabela-classificacao td:nth-child(n+3) { text-align: center; }
+  .pts-col { font-weight: 700; color: #1a3a5c; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    nav ul { overflow-x: auto; }
+    nav li { flex: none; min-width: 140px; }
+    .container { padding: 1rem 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏆 Jogos Internos - IFAL</h1>
+  <div class="status" id="api-status">Conectando ao backend...</div>
+</header>
+
+<nav>
+  <ul>
+    <li><a href="#atleta" onclick="showTab('atleta')">Atleta</a></li>
+    <li><a href="#equipe" onclick="showTab('equipe')">Equipe</a></li>
+    <li><a href="#partida" onclick="showTab('partida')">Partida</a></li>
+    <li><a href="#classificacao" onclick="showTab('classificacao')">Classificação</a></li>
+  </ul>
+</nav>
+
+<div class="container">
+  <!-- ATLETA -->
+  <section id="atleta" class="active">
+    <div class="card">
+      <h2>👤 Cadastro de Atleta</h2>
+      <form id="form-atleta">
+        <div>
+          <label>Nome completo</label>
+          <input type="text" id="atleta-nome" required placeholder="Ex: Lucas Almeida">
+        </div>
+        <div>
+          <label>Matrícula</label>
+          <input type="text" id="atleta-matricula" required placeholder="Ex: 2026001">
+        </div>
+        <div>
+          <label>Data de nascimento</label>
+          <input type="date" id="atleta-nascimento" required>
+        </div>
+        <div>
+          <label>Ativo</label>
+          <select id="atleta-ativo">
+            <option value="1">Sim</option>
+            <option value="0">Não</option>
+          </select>
+        </div>
+        <div class="full">
+          <label>Turma</label>
+          <select id="atleta-turma" required></select>
+        </div>
+        <button type="submit" class="btn-submit" id="btn-atleta-salvar">Cadastrar Atleta</button>
+      </form>
+      <div class="msg" id="msg-atleta"></div>
+
+      <div class="card" style="margin-top:1.5rem;">
+        <h2>📋 Atletas Cadastrados</h2>
+        <button class="btn-refresh" onclick="loadAtletas()">Atualizar lista</button>
+        <table id="tabela-atletas">
+          <thead><tr><th>ID</th><th>Nome</th><th>Matrícula</th><th>Nascimento</th><th>Ativo</th><th>Turma</th><th>Ação</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="empty" id="empty-atletas" style="display:none;">Nenhum atleta cadastrado.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EQUIPE -->
+  <section id="equipe">
+    <div class="card">
+      <h2>🏀 Cadastro de Equipe</h2>
+      <form id="form-equipe">
+        <div>
+          <label>Nome da equipe</label>
+          <input type="text" id="equipe-nome" required placeholder="Ex: Águias">
+        </div>
+        <div>
+          <label>Cor do uniforme</label>
+          <input type="text" id="equipe-cor" required placeholder="Ex: Azul">
+        </div>
+        <div>
+          <label>Confirmada</label>
+          <select id="equipe-confirmada">
+            <option value="1">Sim</option>
+            <option value="0">Não</option>
+          </select>
+        </div>
+        <div class="full">
+          <label>Modalidade</label>
+          <select id="equipe-modalidade" required></select>
+        </div>
+        <div class="full">
+          <label>Turma</label>
+          <select id="equipe-turma" required></select>
+        </div>
+        <button type="submit" class="btn-submit" id="btn-equipe-salvar">Cadastrar Equipe</button>
+      </form>
+      <div class="msg" id="msg-equipe"></div>
+
+      <div class="card" style="margin-top:1.5rem;">
+        <h2>📋 Equipes Cadastradas</h2>
+        <button class="btn-refresh" onclick="loadEquipes()">Atualizar lista</button>
+        <table id="tabela-equipes">
+          <thead><tr><th>ID</th><th>Nome</th><th>Uniforme</th><th>Modalidade</th><th>Turma</th><th>Confirmada</th><th>Ação</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="empty" id="empty-equipes" style="display:none;">Nenhuma equipe cadastrada.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PARTIDA -->
+  <section id="partida">
+    <div class="card">
+      <h2>⚽ Cadastro de Partida</h2>
+      <form id="form-partida">
+        <div>
+          <label>Fase do torneio</label>
+          <input type="text" id="partida-fase" required placeholder="Ex: Fase de Grupos">
+        </div>
+        <div>
+          <label>Data</label>
+          <input type="date" id="partida-data" required>
+        </div>
+        <div>
+          <label>Hora início</label>
+          <input type="time" id="partida-inicio" required>
+        </div>
+        <div>
+          <label>Hora fim</label>
+          <input type="time" id="partida-fim" required>
+        </div>
+        <div class="full">
+          <label>Local / Quadra</label>
+          <input type="text" id="partida-local" required placeholder="Ex: Ginásio Poliesportivo">
+        </div>
+        <div>
+          <label>Equipe Mandante</label>
+          <select id="partida-mandante" required></select>
+        </div>
+        <div>
+          <label>Equipe Visitante</label>
+          <select id="partida-visitante" required></select>
+        </div>
+        <div>
+          <label>Árbitro / Organizador</label>
+          <select id="partida-usuario" required></select>
+        </div>
+        <div>
+          <label>Status</label>
+          <select id="partida-status">
+            <option value="AGENDADA">Agendada</option>
+            <option value="EM_ANDAMENTO">Em Andamento</option>
+            <option value="FINALIZADA">Finalizada</option>
+          </select>
+        </div>
+        <div class="placar-row">
+          <label style="margin:0; font-size:0.85rem;">Placar Mandante</label>
+          <input type="number" id="partida-placar-mandante" min="0" placeholder="0">
+        </div>
+        <div class="placar-row">
+          <label style="margin:0; font-size:0.85rem;">Placar Visitante</label>
+          <input type="number" id="partida-placar-visitante" min="0" placeholder="0">
+        </div>
+        <button type="submit" class="btn-submit" id="btn-partida-salvar">Cadastrar Partida</button>
+      </form>
+      <div class="msg" id="msg-partida"></div>
+
+      <div class="card" style="margin-top:1.5rem;">
+        <h2>📋 Partidas e Placar</h2>
+        <button class="btn-refresh" onclick="loadPartidas()">Atualizar lista</button>
+        <table id="tabela-partidas">
+          <thead><tr><th>ID</th><th>Fase</th><th>Data</th><th>Horário</th><th>Local</th><th>Mandante</th><th>Placar</th><th>Visitante</th><th>Status</th><th>Árbitro</th><th>Ação</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="empty" id="empty-partidas" style="display:none;">Nenhuma partida cadastrada.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLASSIFICAÇÃO -->
+  <section id="classificacao">
+    <div class="card">
+      <h2>📊 Tabela de Classificação</h2>
+      <p style="margin-bottom:1rem; color:#666; font-size:0.9rem;">Vitória = 3 pts | Empate = 1 pt | Derrota = 0 pts | Ordenado por pontos, vitórias e saldo de gols.</p>
+      <button class="btn-refresh" onclick="loadClassificacao()">Atualizar classificação</button>
+      <table id="tabela-classificacao" class="tabela-classificacao">
+        <thead>
+          <tr>
+            <th>Posição</th><th>Equipe</th><th>Modalidade</th><th>Jogos</th><th>Vitórias</th><th>Empates</th><th>Derrotas</th><th>Saldo</th><th class="pts-col">Pontos</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="empty" id="empty-classificacao" style="display:none;">Nenhum dado disponível.</div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const API = 'http://localhost:3000/api';
+const apiStatus = document.getElementById('api-status');
+
+// Verifica se o backend está online
+async function checkApi() {
+  try {
+    const r = await fetch(`${API}/turmas`);
+    if (r.ok) apiStatus.textContent = 'Backend online (localhost:3000)';
+    else apiStatus.textContent = 'Backend respondeu com erro';
+  } catch (e) {
+    apiStatus.textContent = 'Backend offline - inicie o projeto2.js';
+    apiStatus.style.color = '#c0392b';
+  }
+}
+checkApi();
+
+function showTab(id) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector(`nav a[href="#${id}"]`).classList.add('active');
+}
+
+function showMsg(id, texto, tipo) {
+  const el = document.getElementById(id);
+  el.textContent = texto;
+  el.className = 'msg ' + (tipo === 'ok' ? 'ok' : 'err');
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+
+// ============ DROPDOWNS ============
+async function loadDropdowns() {
+  try {
+    const [turmas, modalidades, usuarios] = await Promise.all([
+      fetch(`${API}/turmas`).then(r => r.json()),
+      fetch(`${API}/modalidades`).then(r => r.json()),
+      fetch(`${API}/usuarios`).then(r => r.json()),
+    ]);
+
+    const selAtletaTurma = document.getElementById('atleta-turma');
+    const selEquipeTurma = document.getElementById('equipe-turma');
+    const selEquipeModalidade = document.getElementById('equipe-modalidade');
+    selEquipeModalidade.innerHTML = '<option value="">Selecione</option>';
+    selAtletaTurma.innerHTML = '<option value="">Selecione</option>';
+    selEquipeTurma.innerHTML = '<option value="">Selecione</option>';
+
+    turmas.forEach(t => {
+      const o = document.createElement('option'); o.value = t.id_turma; o.textContent = `${t.nome} - ${t.serie} (${t.turno})`;
+      selAtletaTurma.appendChild(o);
+      const o2 = o.cloneNode(true); selEquipeTurma.appendChild(o2);
+    });
+
+    modalidades.forEach(m => {
+      const o = document.createElement('option'); o.value = m.id_modalidade; o.textContent = m.nome;
+      selEquipeModalidade.appendChild(o);
+    });
+
+    // Partida dropdowns
+    const selMandante = document.getElementById('partida-mandante');
+    const selVisitante = document.getElementById('partida-visitante');
+    const selUsuario = document.getElementById('partida-usuario');
+    selMandante.innerHTML = '<option value="">Selecione</option>';
+    selVisitante.innerHTML = '<option value="">Selecione</option>';
+    selUsuario.innerHTML = '<option value="">Selecione</option>';
+
+    usuarios.forEach(u => {
+      const o = document.createElement('option'); o.value = u.id_usuario; o.textContent = `${u.nome} (${u.perfil})`;
+      selUsuario.appendChild(o);
+    });
+  } catch (e) {
+    console.error('Erro ao carregar dropdowns:', e);
+  }
+}
+
+// ============ ATLETA ============
+async function loadAtletas() {
+  try {
+    const data = await fetch(`${API}/atletas`).then(r => r.json());
+    const tbody = document.querySelector('#tabela-atletas tbody');
+    const empty = document.getElementById('empty-atletas');
+    tbody.innerHTML = '';
+    if (!data || data.length === 0) { empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+    data.forEach(a => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${a.id_atleta}</td>
+        <td>${a.nome}</td>
+        <td>${a.matricula}</td>
+        <td>${a.data_nascimento}</td>
+        <td>${a.ativo ? 'Sim' : 'Não'}</td>
+        <td>${a.turma}</td>
+        <td><button class="btn-del" onclick="excluirAtleta(${a.id_atleta})">Excluir</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (e) { showMsg('msg-atleta', 'Erro ao carregar atletas.', 'err'); }
+}
+
+document.getElementById('form-atleta').onsubmit = async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('btn-atleta-salvar');
+  btn.disabled = true;
+  try {
+    const body = {
+      nome: document.getElementById('atleta-nome').value,
+      matricula: document.getElementById('atleta-matricula').value,
+      data_nascimento: document.getElementById('atleta-nascimento').value,
+      ativo: document.getElementById('atleta-ativo').value,
+      id_turma: document.getElementById('atleta-turma').value,
+    };
+    const r = await fetch(`${API}/atletas`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body) });
+    const json = await r.json();
+    if (!r.ok) throw new Error(json.erro || 'Erro ao cadastrar');
+    showMsg('msg-atleta', json.mensagem, 'ok');
+    e.target.reset();
+    loadAtletas();
+    loadDropdowns();
+  } catch (err) { showMsg('msg-atleta', err.message, 'err'); }
+  finally { btn.disabled = false; }
+};
+
+async function excluirAtleta(id) {
+  if (!confirm('Tem certeza que deseja excluir este atleta?')) return;
+  try {
+    const r = await fetch(`${API}/excluirAtleta/${id}`, { method: 'DELETE' });
+    const json = await r.json();
+    if (!r.ok) throw new Error(json.erro || 'Erro ao excluir');
+    showMsg('msg-atleta', json.mensagem, 'ok');
+    loadAtletas();
+  } catch (err) { showMsg('msg-atleta', err.message, 'err'); }
+}
+
+// ============ EQUIPE ============
+async function loadEquipes() {
+  try {
+    const data = await fetch(`${API}/equipes`).then(r => r.json());
+    const tbody = document.querySelector('#tabela-equipes tbody');
+    const empty = document.getElementById('empty-equipes');
+    tbody.innerHTML = '';
+    if (!data || data.length === 0) { empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+    data.forEach(eq => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${eq.id_equipe}</td>
+        <td>${eq.nome}</td>
+        <td>${eq.cor_uniforme}</td>
+        <td>${eq.modalidade}</td>
+        <td>${eq.turma}</td>
+        <td>${eq.confirmada ? 'Sim' : 'Não'}</td>
+        <td><button class="btn-del" onclick="excluirEquipe(${eq.id_equipe})">Excluir</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (e) { showMsg('msg-equipe', 'Erro ao carregar equipes.', 'err'); }
+}
+
+document.getElementById('form-equipe').onsubmit = async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('btn-equipe-salvar');
+  btn.disabled = true;
+  try {
+    const body = {
+      nome: document.getElementById('equipe-nome').value,
+      cor_uniforme: document.getElementById('equipe-cor').value,
+      confirmada: document.getElementById('equipe-confirmada').value === '1',
+      id_modalidade: document.getElementById('equipe-modalidade').value,
+      id_turma: document.getElementById('equipe-turma').value,
+    };
+    const r = await fetch(`${API}/equipes`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body) });
+    const json = await r.json();
+    if (!r.ok) throw new Error(json.erro || 'Erro ao cadastrar');
+    showMsg('msg-equipe', json.mensagem, 'ok');
+    e.target.reset();
+    loadEquipes();
+  } catch (err) { showMsg('msg-equipe', err.message, 'err'); }
+  finally { btn.disabled = false; }
+};
+
+async function excluirEquipe(id) {
+  if (!confirm('Tem certeza que deseja excluir esta equipe? Inscrições e partidas vinculadas impedem a exclusão.')) return;
+  try {
+    const r = await fetch(`${API}/excluirEquipe/${id}`, { method: 'DELETE' });
+    const json = await r.json();
+    if (!r.ok) throw new Error(json.erro || 'Erro ao excluir');
+    showMsg('msg-equipe', json.mensagem, 'ok');
+    loadEquipes();
+    loadPartidas();
+  } catch (err) { showMsg('msg-equipe', err.message, 'err'); }
+}
+
+// ============ PARTIDA ============
+async function loadPartidas() {
+  try {
+    const data = await fetch(`${API}/partidas`).then(r => r.json());
+    const tbody = document.querySelector('#tabela-partidas tbody');
+    const empty = document.getElementById('empty-partidas');
+    tbody.innerHTML = '';
+    if (!data || data.length === 0) { empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+    data.forEach(p => {
+      const tr = document.createElement('tr');
+      const placar = p.placar_mandante != null && p.placar_visitante != null
+        ? `<strong>${p.placar_mandante} x ${p.placar_visitante}</strong>`
+        : '<span style="color:#999;">—</span>';
+      tr.innerHTML = `
+        <td>${p.id_partida}</td>
+        <td>${p.fase}</td>
+        <td>${p.data_partida}</td>
+        <td>${p.hora_inicio} - ${p.hora_fim}</td>
+        <td>${p.local_quadra}</td>
+        <td>${p.equipe_mandante}</td>
+        <td>${placar}</td>
+        <td>${p.equipe_visitante}</td>
+        <td>${p.status_partida}</td>
+        <td>${p.usuario}</td>
+        <td>
+          <button class="btn-placar" onclick="abrirPlacar(${p.id_partida}, '${p.equipe_mandante}', '${p.equipe_visitante}', ${p.placar_mandante ?? ''}, ${p.placar_visitante ?? ''})">Placar</button>
+          <button class="btn-del" style="margin-left:4px;" onclick="excluirPartida(${p.id_partida})">Excluir</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (e) { showMsg('msg-partida', 'Erro ao carregar partidas.', 'err'); }
+}
+
+document.getElementById('form-partida').onsubmit = async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('btn-partida-salvar');
+  btn.disabled = true;
+  try {
+    const body = {
+      fase: document.getElementById('partida-fase').value,
+      data_partida: document.getElementById('partida-data').value,
+      hora_inicio: document.getElementById('partida-inicio').value,
+      hora_fim: document.getElementById('partida-fim').value,
+      local_quadra: document.getElementById('partida-local').value,
+      id_equipe_mandante: document.getElementById('partida-mandante').value,
+      id_equipe_visitante: document.getElementById('partida-visitante').value,
+      id_usuario: document.getElementById('partida-usuario').value,
+      status_partida: document.getElementById('partida-status').value,
+      placar_mandante: document.getElementById('partida-placar-mandante')?.value || null,
+      placar_visitante: document.getElementById('partida-placar-visitante')?.value || null,
+    };
+    const r = await fetch(`${API}/partidas`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body) });
+    const json = await r.json();
+    if (!r.ok) throw new Error(json.erro || 'Erro ao cadastrar');
+    showMsg('msg-partida', json.mensagem, 'ok');
+    e.target.reset();
+    loadPartidas();
+  } catch (err) { showMsg('msg-partida', err.message, 'err'); }
+  finally { btn.disabled = false; }
+};
+
+async function excluirPartida(id) {
+  if (!confirm('Tem certeza que deseja excluir esta partida?')) return;
+  try {
+    const r = await fetch(`${API}/excluirPartida/${id}`, { method: 'DELETE' });
+    const json = await r.json();
+    if (!r.ok) throw new Error(json.erro || 'Erro ao excluir');
+    showMsg('msg-partida', json.mensagem, 'ok');
+    loadPartidas();
+  } catch (err) { showMsg('msg-partida', err.message, 'err'); }
+}
+
+// Placar modal (simples)
+let placarEditId = null;
+function abrirPlacar(id, mandante, visitante, pm, pv) {
+  placarEditId = id;
+  const modal = document.getElementById('modal-placar');
+  document.getElementById('modal-times').textContent = `${mandante} x ${visitante}`;
+  document.getElementById('placar-m').value = pm === '' ? '' : pm;
+  document.getElementById('placar-v').value = pv === '' ? '' : pv;
+  modal.style.display = 'flex';
+}
+function fecharPlacar() {
+  document.getElementById('modal-placar').style.display = 'none';
+}
+document.getElementById('form-placar').onsubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const body = {
+      placar_mandante: parseInt(document.getElementById('placar-m').value),
+      placar_visitante: parseInt(document.getElementById('placar-v').value),
+      status_partida: 'FINALIZADA',
+    };
+    const r = await fetch(`${API}/partidas/${placarEditId}/placar`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body) });
+    const json = await r.json();
+    if (!r.ok) throw new Error(json.erro || 'Erro ao atualizar');
+    showMsg('msg-partida', json.mensagem, 'ok');
+    fecharPlacar();
+    loadPartidas();
+  } catch (err) { alert(err.message); }
+};
+
+// ============ CLASSIFICAÇÃO ============
+async function loadClassificacao() {
+  try {
+    const data = await fetch(`${API}/classificacao`).then(r => r.json());
+    const tbody = document.querySelector('#tabela-classificacao tbody');
+    const empty = document.getElementById('empty-classificacao');
+    tbody.innerHTML = '';
+    if (!data || data.length === 0) { empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+    data.forEach((eq, i) => {
+      const saldo = (eq.gols_pro || 0) - (eq.gols_contra || 0);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${i + 1}</td>
+        <td>${eq.equipe}</td>
+        <td>${eq.modalidade}</td>
+        <td>${eq.jogos}</td>
+        <td>${eq.vitorias}</td>
+        <td>${eq.empates}</td>
+        <td>${eq.derrotas}</td>
+        <td>${saldo}</td>
+        <td class="pts-col">${eq.pontos}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (e) { console.error('Erro ao carregar classificação:', e); }
+}
+
+// Modal placar HTML (injetado no DOM)
+const modalHTML = `
+<div id="modal-placar" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:1000;">
+  <div style="background:#fff; padding:1.5rem; border-radius:8px; min-width:300px;">
+    <h3 style="margin-bottom:1rem;">Editar Placar</h3>
+    <div id="modal-times" style="font-weight:700; margin-bottom:1rem; text-align:center;"></div>
+    <form id="form-placar">
+      <div style="display:flex; gap:1rem; justify-content:center; align-items:center;">
+        <input type="number" id="placar-m" min="0" placeholder="Mandante" style="width:80px; padding:0.5rem; text-align:center;">
+        <span style="font-size:1.2rem;">x</span>
+        <input type="number" id="placar-v" min="0" placeholder="Visitante" style="width:80px; padding:0.5rem; text-align:center;">
+      </div>
+      <div style="margin-top:1rem; text-align:right;">
+        <button type="button" onclick="fecharPlacar()" style="padding:0.5rem 1rem; margin-right:0.5rem;">Cancelar</button>
+        <button type="submit" style="padding:0.5rem 1rem; background:#1a3a5c; color:#fff; border:none; border-radius:4px;">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+`;
+document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+// Fechar modal clicando fora
+document.getElementById('modal-placar').onclick = (e) => {
+  if (e.target.id === 'modal-placar') fecharPlacar();
+};
+
+// ============ INICIALIZAÇÃO ============
+loadDropdowns();
+loadAtletas();
+loadEquipes();
+loadPartidas();
+loadClassificacao();
+</script>
+
+</body>
+</html>

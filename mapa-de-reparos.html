@@ -1,0 +1,947 @@
+<title>Mapa de Reparos</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&family=Manrope:wght@400;500;600;700;800&display=swap">
+<style>
+/* Direction: a pocket field guide for two people, with a school-notebook grid and soft signal colors. */
+:root {
+  --bg: #f4f7fb;
+  --surface: #ffffff;
+  --surface-raised: #f8fafc;
+  --ink: #20283a;
+  --ink-soft: #48546a;
+  --muted: #718096;
+  --line: #d8e1ec;
+  --line-strong: #bdcbdc;
+  --accent: #d96884;
+  --accent-deep: #b64d68;
+  --accent-soft: #fde9ee;
+  --teal: #238f89;
+  --teal-soft: #e3f5f2;
+  --gold: #c58a2d;
+  --gold-soft: #fff3d8;
+  --ink-deep: #182235;
+  --ink-inverse: #f8fbff;
+  --shadow: 0 18px 46px rgba(33, 48, 72, 0.10);
+  --shadow-small: 0 8px 22px rgba(33, 48, 72, 0.08);
+  --radius-xl: 30px;
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --radius-sm: 11px;
+  --display: 'Bricolage Grotesque', Georgia, serif;
+  --body: 'Manrope', Arial, sans-serif;
+  --utility: 'IBM Plex Mono', Consolas, monospace;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111827;
+    --surface: #192334;
+    --surface-raised: #202c3f;
+    --ink: #f2f6fb;
+    --ink-soft: #c4d0df;
+    --muted: #9aaabd;
+    --line: #314057;
+    --line-strong: #465871;
+    --accent: #f0839d;
+    --accent-deep: #ffabc0;
+    --accent-soft: #3b2735;
+    --teal: #6ed0c1;
+    --teal-soft: #1f3b3e;
+    --gold: #e4b35d;
+    --gold-soft: #3d3422;
+    --ink-deep: #0a1120;
+    --ink-inverse: #f5f8fd;
+    --shadow: 0 18px 46px rgba(0, 0, 0, 0.28);
+    --shadow-small: 0 8px 22px rgba(0, 0, 0, 0.22);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #111827;
+  --surface: #192334;
+  --surface-raised: #202c3f;
+  --ink: #f2f6fb;
+  --ink-soft: #c4d0df;
+  --muted: #9aaabd;
+  --line: #314057;
+  --line-strong: #465871;
+  --accent: #f0839d;
+  --accent-deep: #ffabc0;
+  --accent-soft: #3b2735;
+  --teal: #6ed0c1;
+  --teal-soft: #1f3b3e;
+  --gold: #e4b35d;
+  --gold-soft: #3d3422;
+  --ink-deep: #0a1120;
+  --ink-inverse: #f5f8fd;
+  --shadow: 0 18px 46px rgba(0, 0, 0, 0.28);
+  --shadow-small: 0 8px 22px rgba(0, 0, 0, 0.22);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  padding-block: 24px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  overflow-x: hidden;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  line-height: 1.5;
+}
+
+button, input { font: inherit; }
+button { cursor: pointer; }
+button:focus-visible, a:focus-visible, input:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+::selection { background: var(--accent-soft); color: var(--ink); }
+
+.page-shell { width: min(1180px, 100%); margin: 0 auto; }
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding-block: 4px 24px;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.brand-mark {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 13px 13px 13px 4px;
+  background: var(--ink);
+  color: var(--accent);
+  font-family: var(--display);
+  font-size: 23px;
+  font-weight: 700;
+  transform: rotate(-4deg);
+}
+.brand-copy { display: grid; gap: 0; }
+.brand-name {
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.brand-note {
+  color: var(--muted);
+  font-family: var(--utility);
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.nav-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.nav-tab {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 9px 13px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .02em;
+  transition: .18s ease;
+}
+.nav-tab:hover { color: var(--ink); background: var(--surface); }
+.nav-tab[aria-pressed="true"] {
+  border-color: var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-small);
+}
+
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(290px, .85fr);
+  gap: 22px;
+  overflow: hidden;
+  min-height: 270px;
+  padding: clamp(28px, 5vw, 52px);
+  border-radius: var(--radius-xl);
+  background: var(--ink-deep);
+  color: var(--ink-inverse);
+  box-shadow: var(--shadow);
+}
+.hero::before, .hero::after {
+  position: absolute;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  content: "";
+  opacity: .14;
+}
+.hero::before { width: 360px; height: 360px; right: -120px; top: -150px; }
+.hero::after { width: 220px; height: 220px; right: 90px; bottom: -140px; }
+.hero-copy, .hero-art { position: relative; z-index: 1; min-width: 0; }
+.eyebrow, .kicker {
+  margin: 0 0 12px;
+  color: var(--accent);
+  font-family: var(--utility);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+.hero h1, .screen h1, .screen h2, .screen h3 { text-wrap: balance; }
+.hero h1 {
+  max-width: 570px;
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(38px, 6vw, 72px);
+  font-weight: 700;
+  letter-spacing: -.055em;
+  line-height: .98;
+}
+.hero h1 em { color: var(--accent); font-style: normal; }
+.hero-lede {
+  max-width: 560px;
+  margin: 19px 0 0;
+  color: #cfd8e7;
+  font-size: clamp(15px, 1.8vw, 18px);
+}
+.hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+.hero-actions .button-primary { background: var(--accent); color: var(--ink-deep); }
+.hero-actions .button-primary:hover { background: var(--accent-deep); }
+.hero-actions .button-quiet { border-color: #53627a; color: var(--ink-inverse); }
+.hero-actions .button-quiet:hover { border-color: var(--accent); background: #28344a; }
+.hero-art {
+  display: grid;
+  min-height: 190px;
+  place-items: center;
+}
+.bridge-card {
+  position: relative;
+  width: min(360px, 100%);
+  min-height: 190px;
+  padding: 18px;
+  border: 1px solid #53627a;
+  border-radius: 25px;
+  background: #202d42;
+  transform: rotate(2deg);
+}
+.bridge-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #b8c7d9;
+  font-family: var(--utility);
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.bridge-dots { display: flex; gap: 5px; }
+.bridge-dots span { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.bridge-dots span:nth-child(2) { background: var(--teal); }
+.bridge-dots span:nth-child(3) { background: var(--gold); }
+.bridge-track {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  gap: 10px;
+  margin-top: 35px;
+}
+.bridge-track::before {
+  position: absolute;
+  top: 50%;
+  right: 18px;
+  left: 18px;
+  border-top: 1px dashed #718096;
+  content: "";
+}
+.bridge-node {
+  position: relative;
+  display: grid;
+  place-items: center;
+  gap: 7px;
+  color: #dce6f4;
+  font-family: var(--utility);
+  font-size: 9px;
+  letter-spacing: .04em;
+  text-align: center;
+  text-transform: uppercase;
+}
+.bridge-node i {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 7px solid #202d42;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--ink-deep);
+  font-family: var(--display);
+  font-size: 17px;
+  font-style: normal;
+  font-weight: 700;
+}
+.bridge-node:nth-child(2) i { background: var(--teal); }
+.bridge-node:nth-child(3) i { background: var(--gold); }
+
+main { padding-top: 22px; }
+.screen { display: grid; gap: 21px; }
+.screen-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+.screen h1 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(30px, 4vw, 45px);
+  letter-spacing: -.045em;
+  line-height: 1;
+}
+.screen-intro { max-width: 620px; margin: 9px 0 0; color: var(--ink-soft); font-size: 15px; }
+.score-cluster {
+  flex: 0 0 auto;
+  min-width: 174px;
+  padding: 13px 15px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-small);
+}
+.score-label { color: var(--muted); font-family: var(--utility); font-size: 9px; letter-spacing: .09em; text-transform: uppercase; }
+.score-value { margin-top: 2px; font-family: var(--display); font-size: 30px; font-weight: 700; letter-spacing: -.05em; line-height: 1.1; }
+.score-value span { color: var(--muted); font-family: var(--utility); font-size: 12px; font-weight: 500; letter-spacing: 0; }
+.score-caption { color: var(--teal); font-size: 11px; font-weight: 800; }
+
+.game-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(290px, .65fr);
+  align-items: start;
+  gap: 20px;
+}
+.panel {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-small);
+}
+.panel-pad { padding: clamp(20px, 3vw, 30px); }
+.scenario-panel { overflow: hidden; }
+.scenario-panel .panel-pad { display: grid; gap: 19px; }
+.panel-meta, .micro-row, .tag-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.case-label, .status-label {
+  color: var(--muted);
+  font-family: var(--utility);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.case-label { color: var(--accent-deep); }
+.tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 23px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--surface-raised);
+  color: var(--ink-soft);
+  font-family: var(--utility);
+  font-size: 9px;
+  letter-spacing: .03em;
+}
+.scenario-title { margin: 0; font-family: var(--display); font-size: clamp(28px, 4vw, 43px); letter-spacing: -.05em; line-height: 1.02; }
+.scenario-setup { max-width: 650px; margin: 0; color: var(--ink-soft); font-size: 16px; }
+.question-block {
+  display: grid;
+  gap: 8px;
+  padding: 17px 18px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--accent-soft);
+}
+.question-label { color: var(--accent-deep); font-family: var(--utility); font-size: 10px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; }
+.question-block p { margin: 0; color: var(--ink); font-family: var(--display); font-size: 19px; font-weight: 600; line-height: 1.2; }
+.choice-heading { display: flex; align-items: end; justify-content: space-between; gap: 12px; }
+.choice-heading h3 { margin: 0; font-size: 14px; }
+.choice-heading p { margin: 0; color: var(--muted); font-size: 12px; text-align: right; }
+.choice-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.choice-card {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-height: 147px;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  color: var(--ink);
+  text-align: left;
+  transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.choice-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-small); }
+.choice-card[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 3px var(--accent-soft); }
+.choice-card strong { font-family: var(--display); font-size: 16px; letter-spacing: -.025em; line-height: 1.08; }
+.choice-card p { margin: 0; color: var(--ink-soft); font-size: 12px; line-height: 1.45; }
+.choice-card .choice-effect { margin-top: auto; color: var(--teal); font-family: var(--utility); font-size: 10px; font-weight: 600; letter-spacing: .03em; }
+.choice-number { color: var(--accent-deep); font-family: var(--utility); font-size: 10px; font-weight: 600; }
+.action-row { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
+.button-primary, .button-quiet, .button-text, .filter-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 9px 15px;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: .18s ease;
+}
+.button-primary { background: var(--ink); color: var(--ink-inverse); }
+.button-primary:hover { background: var(--ink-deep); transform: translateY(-1px); }
+.button-primary:disabled { cursor: not-allowed; opacity: .45; transform: none; }
+.button-quiet { border-color: var(--line); background: var(--surface); color: var(--ink-soft); }
+.button-quiet:hover { border-color: var(--accent); color: var(--ink); }
+.button-text { min-height: 32px; padding: 5px 8px; background: transparent; color: var(--accent-deep); }
+.button-text:hover { background: var(--accent-soft); }
+.result-box {
+  display: grid;
+  gap: 11px;
+  padding: 17px;
+  border: 1px solid var(--teal);
+  border-radius: var(--radius-md);
+  background: var(--teal-soft);
+}
+.result-box.is-empty { display: none; }
+.result-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.result-title { margin: 0; color: var(--teal); font-family: var(--display); font-size: 20px; line-height: 1.1; }
+.result-copy { margin: 0; color: var(--ink-soft); font-size: 13px; }
+.result-question { margin: 0; color: var(--ink); font-size: 13px; font-weight: 700; }
+.result-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.result-actions .button-primary { background: var(--teal); color: var(--ink-deep); }
+.result-actions .button-primary:hover { background: var(--teal); }
+
+.side-column { display: grid; gap: 15px; }
+.progress-panel, .tips-panel, .library-panel { padding: 20px; }
+.side-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 13px; }
+.side-heading h3 { margin: 0; font-family: var(--display); font-size: 21px; letter-spacing: -.035em; line-height: 1; }
+.side-heading span { color: var(--muted); font-family: var(--utility); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; }
+.progress-track { height: 8px; overflow: hidden; border-radius: 99px; background: var(--surface-raised); }
+.progress-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--teal)); transition: width .25s ease; }
+.progress-copy { display: flex; justify-content: space-between; gap: 8px; margin-top: 9px; color: var(--muted); font-size: 11px; }
+.tip-list, .safety-list, .loop-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.tip-list li, .safety-list li, .loop-list li { display: grid; grid-template-columns: 19px minmax(0,1fr); gap: 9px; color: var(--ink-soft); font-size: 12px; }
+.tip-list li::before, .safety-list li::before, .loop-list li::before { display: grid; width: 19px; height: 19px; place-items: center; border-radius: 6px; background: var(--gold-soft); color: var(--gold); content: "•"; font-weight: 800; }
+.mini-library { display: grid; gap: 7px; max-height: 410px; overflow: auto; padding-right: 3px; }
+.mini-solution {
+  display: grid;
+  grid-template-columns: 25px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 8px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+}
+.mini-solution:hover, .mini-solution[aria-pressed="true"] { border-color: var(--line); background: var(--surface-raised); }
+.mini-solution-number { color: var(--accent-deep); font-family: var(--utility); font-size: 9px; }
+.mini-solution-name { min-width: 0; overflow-wrap: anywhere; font-size: 12px; font-weight: 700; line-height: 1.2; }
+.mini-solution-effect { color: var(--teal); font-family: var(--utility); font-size: 9px; }
+
+.after-game {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(250px, .8fr);
+  gap: 20px;
+  align-items: stretch;
+}
+.note-panel { padding: 24px; }
+.note-panel h2 { margin: 0; font-family: var(--display); font-size: 28px; letter-spacing: -.045em; line-height: 1; }
+.note-panel p { max-width: 630px; margin: 11px 0 0; color: var(--ink-soft); font-size: 14px; }
+.note-panel .tag-row { margin-top: 17px; }
+.safe-callout { padding: 22px; border-radius: var(--radius-lg); background: var(--gold-soft); }
+.safe-callout .kicker { color: var(--gold); }
+.safe-callout h3 { margin: 0; font-family: var(--display); font-size: 22px; letter-spacing: -.035em; line-height: 1.05; }
+.safe-callout p { margin: 10px 0 0; color: var(--ink-soft); font-size: 12px; }
+
+.map-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
+.map-card {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-small);
+}
+.map-card:hover { border-color: var(--line-strong); }
+.map-card-top { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
+.map-card-number { color: var(--accent-deep); font-family: var(--utility); font-size: 10px; }
+.map-card h3 { margin: 0; font-family: var(--display); font-size: 21px; letter-spacing: -.035em; line-height: 1.05; }
+.map-card-when { margin: 0; color: var(--muted); font-size: 12px; }
+.map-card-action { margin: 0; color: var(--ink-soft); font-size: 13px; }
+.map-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 8px; border-top: 1px solid var(--line); }
+.effect { color: var(--teal); font-family: var(--utility); font-size: 10px; font-weight: 600; }
+.filter-row { display: flex; flex-wrap: wrap; gap: 7px; }
+.filter-button { min-height: 34px; padding: 6px 11px; border-color: var(--line); background: var(--surface); color: var(--muted); font-size: 11px; }
+.filter-button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-deep); }
+
+.guide-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; }
+.guide-card { padding: 23px; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-small); }
+.guide-card.full { grid-column: 1 / -1; }
+.guide-card h2, .guide-card h3 { margin: 0; font-family: var(--display); letter-spacing: -.04em; line-height: 1.05; }
+.guide-card h2 { font-size: 29px; }
+.guide-card h3 { font-size: 21px; }
+.guide-card > p { margin: 10px 0 0; color: var(--ink-soft); font-size: 13px; }
+.guide-card .loop-list { margin-top: 18px; }
+.rule-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-top: 18px; }
+.rule { display: grid; align-content: start; gap: 8px; padding: 14px; border-radius: var(--radius-md); background: var(--surface-raised); }
+.rule-mark { color: var(--accent-deep); font-family: var(--utility); font-size: 10px; }
+.rule strong { font-family: var(--display); font-size: 16px; line-height: 1.05; }
+.rule span { color: var(--ink-soft); font-size: 11px; line-height: 1.4; }
+
+.finish-panel { display: grid; justify-items: start; gap: 15px; padding: clamp(25px, 5vw, 46px); border-radius: var(--radius-xl); background: var(--ink-deep); color: var(--ink-inverse); box-shadow: var(--shadow); }
+.finish-panel h2 { max-width: 680px; margin: 0; font-family: var(--display); font-size: clamp(36px, 6vw, 66px); letter-spacing: -.06em; line-height: .98; }
+.finish-panel p { max-width: 650px; margin: 0; color: #cfd8e7; font-size: 16px; }
+.finish-stat { display: flex; flex-wrap: wrap; gap: 10px; }
+.finish-stat span { padding: 9px 12px; border: 1px solid #53627a; border-radius: 999px; color: #dce6f4; font-family: var(--utility); font-size: 10px; }
+.finish-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.finish-actions .button-primary { background: var(--accent); color: var(--ink-deep); }
+
+.footer {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 27px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.footer p { max-width: 690px; margin: 0; }
+.footer strong { color: var(--ink-soft); }
+
+@media (max-width: 880px) {
+  .hero, .game-layout, .after-game { grid-template-columns: 1fr; }
+  .hero-art { min-height: 160px; }
+  .bridge-card { max-width: 500px; }
+  .choice-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .side-column { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+  .library-panel { grid-column: 1 / -1; }
+  .mini-library { max-height: 290px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 620px) {
+  body { padding-block: 15px 28px; }
+  .topbar, .screen-head, .footer { align-items: start; flex-direction: column; }
+  .topbar { gap: 14px; }
+  .nav-tabs { justify-content: flex-start; }
+  .hero { padding: 26px 21px; border-radius: 24px; }
+  .hero h1 { font-size: 47px; }
+  .hero-art { min-height: 145px; }
+  .bridge-card { min-height: 160px; }
+  .bridge-track { margin-top: 24px; }
+  .screen-head { gap: 13px; }
+  .score-cluster { width: 100%; }
+  .choice-grid, .map-grid, .guide-grid, .side-column { grid-template-columns: 1fr; }
+  .choice-card { min-height: 125px; }
+  .mini-library { grid-template-columns: 1fr; }
+  .guide-card.full { grid-column: auto; }
+  .rule-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
+</style>
+
+<div class="page-shell">
+  <header class="topbar">
+    <a class="brand" href="#jogar" aria-label="Ir para jogar">
+      <span class="brand-mark" aria-hidden="true">↗</span>
+      <span class="brand-copy"><span class="brand-name">Mapa de Reparos</span><span class="brand-note">um jogo de dois</span></span>
+    </a>
+    <nav class="nav-tabs" aria-label="Navegação do jogo">
+      <button class="nav-tab" type="button" data-view="play" aria-pressed="true">Jogar</button>
+      <button class="nav-tab" type="button" data-view="map" aria-pressed="false">Mapa completo</button>
+      <button class="nav-tab" type="button" data-view="guide" aria-pressed="false">Combinados</button>
+    </nav>
+  </header>
+
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-copy">
+      <p class="eyebrow">um co-op para dias atravessados</p>
+      <h1 id="hero-title">Problema apareceu? <em>Escolham uma ponte.</em></h1>
+      <p class="hero-lede">Uma conversa inspirada em carinho, rotina, humor e desencontros. Aqui ninguém ganha uma discussão: vocês testam caminhos para voltar a ficar do mesmo lado.</p>
+      <div class="hero-actions">
+        <button class="button-primary" type="button" data-view="play">Começar uma rodada</button>
+        <button class="button-quiet" type="button" data-view="map">Ver as 16 pontes</button>
+      </div>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <div class="bridge-card">
+        <div class="bridge-topline"><span>conversa em construção</span><span class="bridge-dots"><span></span><span></span><span></span></span></div>
+        <div class="bridge-track">
+          <div class="bridge-node"><i>1</i><span>ouvir</span></div>
+          <div class="bridge-node"><i>2</i><span>combinar</span></div>
+          <div class="bridge-node"><i>3</i><span>reparar</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main id="app" tabindex="-1"></main>
+
+  <footer class="footer">
+    <p><strong>Nota de cuidado:</strong> o jogo pode abrir uma conversa, mas não serve para normalizar medo, coerção, violência ou controle. Se houver risco, parem a rodada e priorizem segurança e apoio humano.</p>
+    <span class="brand-note">feito para testar, não para vencer</span>
+  </footer>
+</div>
+
+<script>
+const strategies = [
+  { id: 'listen', title: 'Escutar antes de consertar', short: 'Primeiro entender. Depois pensar na solução.', when: 'Quando a outra pessoa quer ser acolhida antes de receber conselho.', action: 'Cada um fala por um minuto. Quem escuta devolve: “O que eu entendi foi…”. Só depois pergunta se a pessoa quer ideia ou colo.', effect: '+2 sinais de cuidado', points: 2, category: 'entender', tags: ['tempo', 'cuidado', 'peso', 'depois'] },
+  { id: 'clarify', title: 'Perguntar, não adivinhar', short: 'Trocar suposição por curiosidade.', when: 'Quando uma resposta curta, um silêncio ou um “hum” começa a parecer rejeição.', action: 'Pergunte: “Você quer conversar agora, mais tarde ou só me avisar que está tudo bem?”.', effect: '+2 sinais de cuidado', points: 2, category: 'entender', tags: ['tempo', 'silencio', 'seguranca'] },
+  { id: 'need', title: 'Nomear sentimento e necessidade', short: 'Dizer o que está acontecendo por dentro.', when: 'Quando a conversa está virando cobrança, ironia ou leitura de mente.', action: 'Complete: “Eu me senti ___ quando ___; agora eu preciso de ___”. Fale da experiência, não do caráter.', effect: '+2 sinais de cuidado', points: 2, category: 'entender', tags: ['tom', 'silencio', 'peso'] },
+  { id: 'request', title: 'Fazer um pedido possível', short: 'Um pedido claro dá chance de resposta real.', when: 'Quando “você nunca…” ou “você devia…” aparece na ponta da língua.', action: 'Transforme a queixa em uma ação observável: “Você pode me avisar quando chegar?” ou “Pode me ouvir por cinco minutos?”.', effect: '+2 sinais de cuidado', points: 2, category: 'combinar', tags: ['tempo', 'rotina', 'seguranca'] },
+  { id: 'pause', title: 'Pausa com hora para voltar', short: 'Distância não precisa virar abandono.', when: 'Quando os dois estão acelerados, cansados ou prestes a falar algo para ferir.', action: 'Digam “pausa”. Combinem um horário para retomar e um sinal simples de segurança. Pausa sem retorno marcado vira mais incerteza.', effect: '+2 sinais de cuidado', points: 2, category: 'limites', tags: ['tom', 'peso', 'silencio'] },
+  { id: 'context', title: 'Dar contexto para o silêncio', short: 'Disponibilidade não é vigilância 24 horas.', when: 'Quando a rotina, aula, trabalho, transporte ou cansaço atrapalha a resposta.', action: 'Enviem um aviso curto: “Estou ocupado e volto depois”. Se não der, retomem sem transformar atraso em prova de amor.', effect: '+2 sinais de cuidado', points: 2, category: 'combinar', tags: ['tempo', 'rotina', 'silencio'] },
+  { id: 'repair', title: 'Reparar sem “mas”', short: 'Reconhecer o impacto abre a porta.', when: 'Quando uma fala, piada ou atitude machucou.', action: 'Use três passos: “Eu fiz ___; entendo que bateu assim; da próxima vez vou ___”. O pedido de desculpa não exige que o outro supere na hora.', effect: '+2 sinais de cuidado', points: 2, category: 'reparar', tags: ['tom', 'humor', 'limites', 'depois'] },
+  { id: 'consent', title: 'Checar consentimento', short: 'Curiosidade e carinho também precisam de espaço.', when: 'Quando um pedido envolve corpo, fotos, intimidade, tempo ou exposição.', action: 'Pergunte e aceite o “não” sem insistir: “Você está confortável? Quer outra coisa? Posso deixar para outro momento?”.', effect: '+2 sinais de cuidado', points: 2, category: 'limites', tags: ['limites', 'seguranca'] },
+  { id: 'plan', title: 'Transformar tensão em plano', short: 'O combinado precisa caber na vida real.', when: 'Quando desencontros de horário e expectativas repetem a mesma briga.', action: 'Escolham uma próxima ação pequena: horário, local, mensagem de chegada, quem faz o quê e o que muda se o plano cair.', effect: '+2 sinais de cuidado', points: 2, category: 'combinar', tags: ['tempo', 'rotina', 'futuro'] },
+  { id: 'care', title: 'Cuidar no concreto', short: 'Às vezes o reparo é água, comida ou companhia.', when: 'Quando alguém está com dor, sobrecarregado, de luto ou sem energia para explicar tudo.', action: 'Ofereça opções simples: água, comida, silêncio, companhia, ajuda prática. Pergunte antes de assumir o que a pessoa precisa.', effect: '+2 sinais de cuidado', points: 2, category: 'cuidado', tags: ['cuidado', 'peso', 'rotina'] },
+  { id: 'reassure', title: 'Reassegurar sem controlar', short: 'Carinho pode ser presença, não fiscalização.', when: 'Quando o medo pede confirmação ou a distância faz a cabeça criar histórias.', action: 'Combine uma frase e um limite saudável: “Estou aqui; quando puder respondo”. Evite pedir provas, senhas ou localização como condição de confiança.', effect: '+2 sinais de cuidado', points: 2, category: 'cuidado', tags: ['seguranca', 'silencio', 'tempo'] },
+  { id: 'humor', title: 'Usar humor com saída', short: 'A piada só funciona quando os dois conseguem rir.', when: 'Quando a brincadeira é parte do jeito do casal, mas existe chance de tocar numa ferida.', action: 'Antes ou depois, dê uma saída: “Posso brincar com isso?” e “Se pegou mal, eu paro”. Se a pessoa disser que doeu, troque o riso por cuidado.', effect: '+2 sinais de cuidado', points: 2, category: 'reparar', tags: ['humor', 'tom', 'limites'] },
+  { id: 'perspective', title: 'Trocar de perspectiva', short: 'Ver a mesma cena pelos dois lados.', when: 'Quando cada um está defendendo sua intenção e ninguém escuta o efeito.', action: 'Cada pessoa responde: “Se eu estivesse no seu lugar, talvez eu sentisse…”. Não é para concordar com tudo; é para ampliar a cena.', effect: '+2 sinais de cuidado', points: 2, category: 'entender', tags: ['tom', 'humor', 'peso'] },
+  { id: 'ritual', title: 'Recomeçar em algo leve', short: 'Nem todo reparo precisa de uma conversa enorme.', when: 'Quando o assunto foi resolvido o suficiente e o corpo ainda está tenso.', action: 'Façam uma atividade escolhida pelos dois: caminhar, ouvir música, desenhar, estudar juntos ou compartilhar uma comida. Presença também reconecta.', effect: '+2 sinais de cuidado', points: 2, category: 'cuidado', tags: ['depois', 'rotina', 'humor'] },
+  { id: 'gratitude', title: 'Reconhecer o esforço', short: 'Notar o que deu certo cria memória de parceria.', when: 'Quando alguém tentou mudar, avisar, ouvir ou voltar para a conversa.', action: 'Seja específico: “Eu notei que você voltou para terminar o assunto” ou “Obrigado por me avisar”. Não use elogio para apagar o problema; use para fortalecer o próximo passo.', effect: '+2 sinais de cuidado', points: 2, category: 'reparar', tags: ['depois', 'cuidado', 'rotina'] },
+  { id: 'support', title: 'Chamar apoio e proteger limites', short: 'Casal nenhum precisa resolver tudo sozinho.', when: 'Quando há repetição de dano, medo, ameaça, controle ou uma situação grande demais.', action: 'Pausem o jogo. Procurem uma pessoa de confiança ou apoio profissional. Se houver risco imediato, saiam da situação e busquem ajuda local.', effect: '+2 sinais de cuidado', points: 2, category: 'limites', tags: ['seguranca', 'peso', 'limites'] }
+];
+
+const scenarios = [
+  { title: 'A mensagem ficou no vácuo', setup: 'Uma mensagem importante fica sem resposta enquanto a outra pessoa segue a rotina. A cabeça começa a preencher o silêncio.', prompt: 'Como criar segurança sem cobrar disponibilidade o tempo todo?', tags: ['tempo', 'silencio', 'seguranca'] },
+  { title: 'Dois horários, um encontro', setup: 'Aula, trabalho, ônibus ou cansaço fazem vocês se desencontrarem. O carinho existe, mas o combinado ficou nebuloso.', prompt: 'Que pequeno acordo deixaria o próximo encontro mais leve?', tags: ['tempo', 'rotina', 'futuro'] },
+  { title: 'A piada pousou torta', setup: 'Uma brincadeira sobre estilo, aparência, passado ou gosto pessoal não foi recebida como brincadeira.', prompt: 'Como reparar o impacto sem transformar o humor do casal em medo?', tags: ['humor', 'tom', 'limites'] },
+  { title: 'Um pedido pede espaço', setup: 'Uma pessoa faz um pedido íntimo ou pessoal. A outra não está confortável, não está no clima ou prefere deixar para depois.', prompt: 'Como dizer “não agora” sem culpa e como ouvir sem insistência?', tags: ['limites', 'seguranca'] },
+  { title: 'Bateria emocional em 2%', setup: 'Dor, sono, fome, excesso de tarefas ou preocupação fazem alguém ficar mais curto nas respostas.', prompt: 'O que é cuidado concreto hoje, sem exigir uma explicação perfeita?', tags: ['cuidado', 'peso', 'rotina'] },
+  { title: 'Chegou uma notícia pesada', setup: 'Uma perda, problema familiar ou situação triste entra na conversa e muda o tom do dia.', prompt: 'A pessoa quer conselho, companhia, silêncio ou ajuda prática?', tags: ['peso', 'cuidado', 'silencio'] },
+  { title: 'A briga veio de fora', setup: 'Um grupo, colega, comentário ou situação externa puxa irritação para dentro do casal.', prompt: 'Como apoiar sem virar combustível para uma guerra que não é de vocês?', tags: ['tom', 'humor', 'limites'] },
+  { title: 'Futuro em rascunho', setup: 'Faculdade, trabalho, cidade, dinheiro ou sonhos aparecem com ritmos diferentes.', prompt: 'Como falar de futuro sem transformar diferença de plano em ameaça?', tags: ['futuro', 'seguranca', 'tempo'] },
+  { title: 'A tarefa invisível', setup: 'Uma pessoa sente que está lembrando, organizando ou puxando tudo. A outra não percebe o peso acumulado.', prompt: 'Como dividir uma ação real em vez de discutir quem se importa mais?', tags: ['rotina', 'cuidado', 'peso'] },
+  { title: 'Depois da faísca', setup: 'A conversa terminou estranha. Ninguém quer reabrir a briga, mas o silêncio também não parece descanso.', prompt: 'Qual seria um primeiro gesto seguro para voltar a falar?', tags: ['depois', 'silencio', 'reparar'] }
+];
+
+const initialState = {
+  view: 'play',
+  currentCase: 0,
+  rounds: 0,
+  hearts: 0,
+  selectedStrategy: null,
+  lastResult: null,
+  filter: 'todos',
+  used: [],
+  finished: false
+};
+let state = { ...initialState };
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[char]);
+}
+
+function currentScenario() { return scenarios[state.currentCase] || scenarios[0]; }
+function findStrategy(id) { return strategies.find(item => item.id === id); }
+function recommendations() {
+  const tags = currentScenario().tags;
+  const matched = strategies.filter(item => item.tags.some(tag => tags.includes(tag)));
+  return matched.slice(0, 3);
+}
+function progressPercent() { return Math.min(100, Math.round((state.rounds / scenarios.length) * 100)); }
+function categoryLabel(category) {
+  return ({ entender: 'entender', combinar: 'combinar', limites: 'limites', reparar: 'reparar', cuidado: 'cuidar' })[category] || category;
+}
+function updateNav() {
+  document.querySelectorAll('.nav-tab').forEach(button => {
+    button.setAttribute('aria-pressed', button.dataset.view === state.view ? 'true' : 'false');
+  });
+}
+function snapshot() {
+  try { window.claude?.hot?.snapshot?.(state); } catch (_) {}
+}
+
+function renderHero() {
+  const hero = document.querySelector('.hero');
+  if (!hero) return;
+  hero.hidden = state.view !== 'play';
+}
+
+function renderMiniLibrary() {
+  return strategies.map((item, index) => `
+    <button class="mini-solution" type="button" data-strategy="${item.id}" aria-pressed="${state.selectedStrategy === item.id ? 'true' : 'false'}" title="${escapeHTML(item.action)}">
+      <span class="mini-solution-number">${String(index + 1).padStart(2, '0')}</span>
+      <span class="mini-solution-name">${escapeHTML(item.title)}</span>
+      <span class="mini-solution-effect">+2</span>
+    </button>
+  `).join('');
+}
+
+function renderResult() {
+  if (!state.lastResult) return '<div class="result-box is-empty" aria-hidden="true"></div>';
+  if (state.lastResult.kind === 'skip') {
+    return `
+      <div class="result-box" aria-live="polite">
+        <div class="result-top"><h3 class="result-title">Pular também é cuidado.</h3><span class="status-label">sem penalidade</span></div>
+        <p class="result-copy">Nem todo assunto cabe agora. Guardem a carta e voltem quando houver disponibilidade real.</p>
+        <div class="result-actions"><button class="button-primary" type="button" data-action="next">${state.rounds >= scenarios.length ? 'Ver fechamento' : 'Próximo caso'}</button></div>
+      </div>
+    `;
+  }
+  const item = findStrategy(state.lastResult.strategyId);
+  return `
+    <div class="result-box" aria-live="polite">
+      <div class="result-top"><h3 class="result-title">Ponte escolhida: ${escapeHTML(item.title)}</h3><span class="status-label">+2 sinais</span></div>
+      <p class="result-copy">${escapeHTML(item.action)}</p>
+      <p class="result-question">Perguntem um ao outro: “O que seria um gesto pequeno e possível nesta semana?”</p>
+      <div class="result-actions">
+        <button class="button-primary" type="button" data-action="next">${state.rounds >= scenarios.length ? 'Ver fechamento' : 'Próximo caso'}</button>
+        <button class="button-quiet" type="button" data-action="copy">Copiar a frase</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderGame() {
+  if (state.finished) return renderFinish();
+  const scenario = currentScenario();
+  const suggestions = recommendations();
+  const selected = findStrategy(state.selectedStrategy);
+  const choiceCards = suggestions.map((item, index) => `
+    <button class="choice-card" type="button" data-strategy="${item.id}" aria-pressed="${state.selectedStrategy === item.id ? 'true' : 'false'}">
+      <span class="choice-number">ponte ${index + 1}</span>
+      <strong>${escapeHTML(item.title)}</strong>
+      <p>${escapeHTML(item.short)}</p>
+      <span class="choice-effect">${escapeHTML(item.effect)}</span>
+    </button>
+  `).join('');
+  return `
+    <section class="screen" aria-labelledby="game-title">
+      <div class="screen-head">
+        <div><p class="kicker">rodada cooperativa</p><h1 id="game-title">Escolham uma ponte.</h1><p class="screen-intro">Leiam o caso, escolham uma saída e adaptem para a vida de vocês. A resposta certa é a que respeita os dois.</p></div>
+        <div class="score-cluster"><div class="score-label">sinais de cuidado</div><div class="score-value">${state.hearts}<span>/ ${scenarios.length * 2}</span></div><div class="score-caption">sem placar de culpados</div></div>
+      </div>
+      <div class="game-layout">
+        <section class="panel scenario-panel" aria-labelledby="case-title">
+          <div class="panel-pad">
+            <div class="panel-meta"><span class="case-label">caso ${state.currentCase + 1} de ${scenarios.length}</span><span class="tag-row">${scenario.tags.map(tag => `<span class="tag">${escapeHTML(tag)}</span>`).join('')}</span></div>
+            <h2 class="scenario-title" id="case-title">${escapeHTML(scenario.title)}</h2>
+            <p class="scenario-setup">${escapeHTML(scenario.setup)}</p>
+            <div class="question-block"><span class="question-label">pergunta da rodada</span><p>${escapeHTML(scenario.prompt)}</p></div>
+            <div class="choice-heading"><h3>Escolham uma ponte</h3><p>${selected ? 'Ponte selecionada. Ajustem as palavras.' : 'Sem resposta perfeita.'}</p></div>
+            <div class="choice-grid">${choiceCards}</div>
+            <p class="micro-row"><span class="status-label">Também vale:</span><span class="ink-soft">abrir o Mapa completo e escolher outra saída.</span></p>
+            <div class="action-row"><button class="button-primary" type="button" data-action="commit" ${selected ? '' : 'disabled'}>Aplicar esta ponte</button><button class="button-quiet" type="button" data-action="skip">Pausar / pular</button></div>
+            ${renderResult()}
+          </div>
+        </section>
+        <aside class="side-column" aria-label="Painel da rodada">
+          <section class="panel progress-panel"><div class="side-heading"><h3>Trilha</h3><span>${progressPercent()}% percorrida</span></div><div class="progress-track"><div class="progress-fill" style="width: ${progressPercent()}%"></div></div><div class="progress-copy"><span>${state.rounds} caso(s) cuidado(s)</span><span>${scenarios.length - state.rounds} pela frente</span></div></section>
+          <section class="panel tips-panel"><div class="side-heading"><h3>Como jogar</h3><span>dupla ou solo</span></div><ul class="tip-list"><li>Leiam sem interromper.</li><li>Escolham uma ação que cabe hoje.</li><li>Se alguém disser “pausa”, a rodada para.</li><li>Adaptem a frase ao jeito de vocês.</li></ul></section>
+          <section class="panel library-panel"><div class="side-heading"><h3>16 pontes</h3><span>toque para usar</span></div><div class="mini-library">${renderMiniLibrary()}</div></section>
+        </aside>
+      </div>
+      <div class="after-game"><section class="panel note-panel"><p class="kicker">um detalhe importante</p><h2>Pontos não medem amor.</h2><p>Os sinais servem só para marcar caminhos que vocês experimentaram. Uma conversa pode terminar em pausa, em abraço, em plano ou em procurar ajuda. Tudo isso é uma escolha válida.</p><div class="tag-row"><span class="tag">ouvir</span><span class="tag">combinar</span><span class="tag">reparar</span><span class="tag">cuidar</span></div></section><aside class="safe-callout"><p class="kicker">limite do jogo</p><h3>Se existe medo, parem a partida.</h3><p>Violência, ameaça, coerção e controle não são desafios para resolver com uma carta. Priorizem segurança e procurem apoio de uma pessoa de confiança ou de um serviço profissional.</p></aside></div>
+    </section>
+  `;
+}
+
+function renderFinish() {
+  const usedUnique = new Set(state.used).size;
+  return `
+    <section class="screen" aria-labelledby="finish-title">
+      <div class="finish-panel"><p class="eyebrow">rodada concluída</p><h2 id="finish-title">Vocês não terminaram iguais. Terminaram com mais caminhos.</h2><p>O mapa agora tem tentativas reais: escuta, pedido claro, pausa, limite, cuidado e recomeço. Escolham uma delas para levar para a próxima semana.</p><div class="finish-stat"><span>${state.hearts} sinais de cuidado</span><span>${usedUnique} pontes testadas</span><span>${scenarios.length} situações visitadas</span></div><div class="finish-actions"><button class="button-primary" type="button" data-action="reset">Jogar de novo</button><button class="button-quiet" type="button" data-view="map">Rever o mapa</button></div></div>
+      <div class="after-game"><section class="panel note-panel"><p class="kicker">para fechar</p><h2>Qual frase vocês querem guardar?</h2><p>Escolham uma frase simples para os dias difíceis. Por exemplo: “Estou do seu lado; só preciso de dez minutos” ou “Quero entender antes de responder”.</p></section><aside class="safe-callout"><p class="kicker">próximo passo</p><h3>Uma ação pequena vale mais que uma promessa enorme.</h3><p>Marquem uma conversa curta, um aviso de rotina ou um momento leve para reconectar.</p></aside></div>
+    </section>
+  `;
+}
+
+function renderMap() {
+  const categories = ['todos', 'entender', 'combinar', 'limites', 'reparar', 'cuidado'];
+  const visible = state.filter === 'todos' ? strategies : strategies.filter(item => item.category === state.filter);
+  return `
+    <section class="screen" aria-labelledby="map-title">
+      <div class="screen-head"><div><p class="kicker">catálogo de possibilidades</p><h1 id="map-title">O mapa completo.</h1><p class="screen-intro">Não existe um único jeito de resolver um problema. Existem pontes diferentes para momentos diferentes. Escolham a que respeita a energia, o limite e a vontade dos dois.</p></div><div class="score-cluster"><div class="score-label">pontes disponíveis</div><div class="score-value">${strategies.length}<span> caminhos</span></div><div class="score-caption">todas sem competição</div></div></div>
+      <div class="panel panel-pad"><div class="filter-row">${categories.map(category => `<button class="filter-button" type="button" data-filter="${category}" aria-pressed="${state.filter === category ? 'true' : 'false'}">${category === 'todos' ? 'Todas' : categoryLabel(category)}</button>`).join('')}</div></div>
+      <div class="map-grid">${visible.map((item, index) => `
+        <article class="map-card"><div class="map-card-top"><div><span class="map-card-number">${String(strategies.indexOf(item) + 1).padStart(2, '0')} / ${categoryLabel(item.category)}</span><h3>${escapeHTML(item.title)}</h3></div><span class="effect">+2</span></div><p class="map-card-when"><strong>Use quando:</strong> ${escapeHTML(item.when)}</p><p class="map-card-action"><strong>Experimente:</strong> ${escapeHTML(item.action)}</p><div class="map-card-footer"><span class="tag-row">${item.tags.slice(0, 2).map(tag => `<span class="tag">${escapeHTML(tag)}</span>`).join('')}</span><button class="button-text" type="button" data-use-strategy="${item.id}">Usar no jogo</button></div></article>
+      `).join('')}</div>
+      <div class="after-game"><section class="panel note-panel"><p class="kicker">a lógica do mapa</p><h2>Entender, combinar, reparar, cuidar.</h2><p>Uma boa solução costuma misturar mais de uma ponte. Primeiro vocês entendem o que aconteceu. Depois combinam algo possível. Se houve dano, reparam. Em seguida, cuidam do vínculo e dos limites.</p></section><aside class="safe-callout"><p class="kicker">sem obrigação</p><h3>Não querem responder? Tudo bem.</h3><p>Qualquer carta pode ser pulada. Consentimento também vale para conversas emocionais.</p></aside></div>
+    </section>
+  `;
+}
+
+function renderGuide() {
+  return `
+    <section class="screen" aria-labelledby="guide-title">
+      <div class="screen-head"><div><p class="kicker">antes de apertar jogar</p><h1 id="guide-title">Combinados que protegem a conversa.</h1><p class="screen-intro">O jogo funciona melhor quando a rodada não vira teste de amor. Combinem o ritmo antes e respeitem qualquer pedido de pausa.</p></div></div>
+      <div class="guide-grid">
+        <section class="guide-card full"><p class="kicker">quatro regras simples</p><h2>O vínculo vem antes da resposta.</h2><div class="rule-grid"><div class="rule"><span class="rule-mark">01 / CONSENTIR</span><strong>Participação é convite.</strong><span>Ninguém precisa revelar algo, responder na hora ou escolher uma carta desconfortável.</span></div><div class="rule"><span class="rule-mark">02 / PAUSAR</span><strong>“Pausa” encerra a rodada.</strong><span>Não debatam o pedido de pausa. Marquem um retorno apenas se isso for seguro e desejado.</span></div><div class="rule"><span class="rule-mark">03 / CUIDAR</span><strong>Sem placar de culpados.</strong><span>Os pontos marcam tentativas. Não medem quem ama mais nem quem está certo.</span></div><div class="rule"><span class="rule-mark">04 / PROTEGER</span><strong>Risco não é puzzle.</strong><span>Medo, ameaça, violência e controle pedem segurança e apoio humano, não uma solução de jogo.</span></div></div></section>
+        <section class="guide-card"><p class="kicker">roteiro de 5 minutos</p><h3>Uma rodada curta</h3><ol class="loop-list"><li>Escolham o caso que parece mais próximo, sem usar o jogo para acusar.</li><li>Uma pessoa lê. A outra confirma se entendeu o cenário.</li><li>Escolham uma ponte e adaptem a frase para a situação real.</li><li>Façam uma pergunta pequena: “O que seria possível hoje?”.</li><li>Fechem com ação, pausa, carinho ou apoio. Não precisam resolver tudo.</li></ol></section>
+        <section class="guide-card"><p class="kicker">frases de bolso</p><h3>Para sair do automático</h3><ul class="safety-list"><li>“Quero entender antes de responder.”</li><li>“Você quer acolhimento, ideia ou espaço?”</li><li>“Não consigo agora, mas posso voltar às ___.”</li><li>“Eu não gostei do impacto. Posso reparar?”</li><li>“Isso ultrapassa meu limite. Vou pausar.”</li></ul></section>
+        <section class="guide-card full"><p class="kicker">quando o jogo deve parar</p><h3>Segurança não se negocia.</h3><p>Se alguém está com medo, sendo ameaçado, pressionado, vigiado, humilhado ou impedido de dizer não, não usem as cartas para buscar uma solução a dois. A prioridade é sair do risco e procurar apoio de alguém de confiança ou de um serviço profissional local.</p></section>
+      </div>
+    </section>
+  `;
+}
+
+function render() {
+  const app = document.getElementById('app');
+  if (!app) return;
+  renderHero();
+  app.innerHTML = state.view === 'play' ? renderGame() : state.view === 'map' ? renderMap() : renderGuide();
+  updateNav();
+  snapshot();
+}
+
+function setView(view) {
+  state.view = view;
+  if (view === 'play' && state.finished) state.finished = false;
+  render();
+  document.getElementById('app')?.focus({ preventScroll: true });
+}
+
+function selectStrategy(id) {
+  if (!findStrategy(id)) return;
+  state.selectedStrategy = id;
+  state.lastResult = null;
+  state.view = 'play';
+  state.finished = false;
+  render();
+}
+
+function commitStrategy() {
+  const item = findStrategy(state.selectedStrategy);
+  if (!item || state.lastResult) return;
+  state.hearts += item.points;
+  state.rounds += 1;
+  state.used.push(item.id);
+  state.lastResult = { kind: 'strategy', strategyId: item.id };
+  render();
+}
+
+function skipCase() {
+  if (state.lastResult) return;
+  state.rounds += 1;
+  state.lastResult = { kind: 'skip' };
+  render();
+}
+
+function nextCase() {
+  if (!state.lastResult) return;
+  if (state.currentCase >= scenarios.length - 1) {
+    state.finished = true;
+    state.lastResult = null;
+  } else {
+    state.currentCase += 1;
+    state.selectedStrategy = null;
+    state.lastResult = null;
+  }
+  render();
+}
+
+function resetGame() {
+  state = { ...initialState };
+  render();
+}
+
+async function copySelected() {
+  const item = findStrategy(state.lastResult?.strategyId);
+  if (!item) return;
+  const text = `${item.title}: ${item.action}`;
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast('Frase copiada.');
+  } catch (_) {
+    const area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'fixed';
+    area.style.opacity = '0';
+    document.body.appendChild(area);
+    area.select();
+    try { document.execCommand('copy'); showToast('Frase copiada.'); } catch (_) { showToast('Selecione a frase no mapa para copiar.'); }
+    area.remove();
+  }
+}
+
+function showToast(message) {
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.setAttribute('role', 'status');
+    toast.style.position = 'fixed';
+    toast.style.right = 'max(18px, env(safe-area-inset-right, 0px))';
+    toast.style.bottom = 'max(18px, env(safe-area-inset-bottom, 0px))';
+    toast.style.zIndex = '20';
+    toast.style.padding = '12px 15px';
+    toast.style.border = '1px solid var(--line)';
+    toast.style.borderRadius = '12px';
+    toast.style.background = 'var(--ink)';
+    toast.style.color = 'var(--ink-inverse)';
+    toast.style.font = '700 12px var(--body)';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  window.clearTimeout(showToast.timer);
+  showToast.timer = window.setTimeout(() => toast.remove(), 2200);
+}
+
+document.addEventListener('click', event => {
+  const viewButton = event.target.closest('[data-view]');
+  if (viewButton) { event.preventDefault(); setView(viewButton.dataset.view); return; }
+  const filterButton = event.target.closest('[data-filter]');
+  if (filterButton) { state.filter = filterButton.dataset.filter; render(); return; }
+  const useButton = event.target.closest('[data-use-strategy]');
+  if (useButton) { selectStrategy(useButton.dataset.useStrategy); return; }
+  const strategyButton = event.target.closest('[data-strategy]');
+  if (strategyButton) { selectStrategy(strategyButton.dataset.strategy); return; }
+  const action = event.target.closest('[data-action]')?.dataset.action;
+  if (action === 'commit') { commitStrategy(); return; }
+  if (action === 'skip') { skipCase(); return; }
+  if (action === 'next') { nextCase(); return; }
+  if (action === 'reset') { resetGame(); return; }
+  if (action === 'copy') { copySelected(); return; }
+});
+
+function start(data) {
+  if (data && typeof data === 'object') state = { ...initialState, ...data };
+  render();
+}
+
+try {
+  if (window.claude?.hot?.ready) window.claude.hot.ready(start);
+  else start(window.claude?.hot?.data || {});
+} catch (_) { start({}); }
+</script>
