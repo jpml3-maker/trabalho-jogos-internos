@@ -1,7 +1,4 @@
--- ============================================================================
--- PROJETO INTEGRADO DO 4º BIMESTRE - IFAL
--- Tema 5: Jogos Internos
--- ============================================================================
+
 
 CREATE DATABASE IF NOT EXISTS jogos_internos
   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -16,9 +13,7 @@ DROP TABLE IF EXISTS MODALIDADE;
 DROP TABLE IF EXISTS TURMA;
 DROP TABLE IF EXISTS USUARIO;
 
--- ----------------------------------------------------------------------------
 
--- ----------------------------------------------------------------------------
 CREATE TABLE USUARIO (
     id_usuario    INT AUTO_INCREMENT PRIMARY KEY,
     nome          VARCHAR(100) NOT NULL,
